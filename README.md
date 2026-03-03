@@ -51,6 +51,12 @@ and safe reversibility — no dry-run needed since every run is a commit you
 can `git revert`. Preview first with `datalad run --dry-run command`.
 
 ```bash
+# BIDSify subject directories across the entire dataset in one shot
+datalad run \
+    -m "Add sub- prefix to all subject directories" \
+    -i "2*" \
+    "rename {inputs} 'sub-' ''"
+
 # Reindex trial numbers across all sessions for a subject
 datalad run \
     -m "Offset trial numbers by +37 for sub-240227P LSD post" \
