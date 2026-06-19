@@ -114,3 +114,59 @@ def test_regex():
         assert rc == 0
         assert (Path(tmpdir) / "exp-Saline").exists()
         assert not old_dir.exists()
+
+
+def test_path_mode_cross_tree_move():
+    """Backfill snr.npy from 02_roi2cell/.../cells/ -> 01_suite2p/...,
+    preserving sub/exp/plane and creating the (non-existent) destination tree.
+
+    02_roi2cell/sub-240226O/exp-LSD/plane0/cells/snr.npy
+      -> 01_suite2p/sub-240226O/exp-LSD/plane0/snr.npy
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        subjects = [
+            ("sub-240226O", "exp-LSD"),
+            ("sub-240222M", "exp-Ketam"),
+        ]
+        for sub, exp in subjects:
+            src_cells = root / "02_roi2cell" / sub / exp / "plane0" / "cells"
+            src_cells.mkdir(parents=True)
+            (src_cells / "snr.npy").write_text(f"{sub}-{exp}")  # unique content
+            # sibling files that must NOT move
+            (src_cells / "iscell.npy").touch()
+
+        # run on absolute input paths; the regex matches the substring within them
+        inputs = [
+            str(root / "02_roi2cell" / sub / exp / "plane0" / "cells" / "snr.npy")
+            for sub, exp in subjects
+        ]
+        rc, out, err = run_rename(
+            [*inputs, "02_roi2cell/(.*)/cells/snr.npy", r"01_suite2p/\1/snr.npy"]
+        )
+        assert rc == 0, err
+
+        for sub, exp in subjects:
+            moved = root / "01_suite2p" / sub / exp / "plane0" / "snr.npy"
+            src = root / "02_roi2cell" / sub / exp / "plane0" / "cells" / "snr.npy"
+            assert moved.exists(), f"{moved} should exist"
+            assert moved.read_text() == f"{sub}-{exp}"  # content preserved, right file
+            assert not src.exists(), f"{src} should be gone"
+            # sibling left untouched
+            assert (root / "02_roi2cell" / sub / exp / "plane0" / "cells" / "iscell.npy").exists()
+
+
+def test_path_mode_delete_segment():
+    """A plain (non-regex) arg1 with '/' deletes a path segment, in place.
+
+    .../plane0/cells/snr.npy -> .../plane0/snr.npy
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        cells = root / "plane0" / "cells"
+        cells.mkdir(parents=True)
+        (cells / "snr.npy").touch()
+        rc, _, err = run_rename([str(cells / "snr.npy"), "cells/", ""])
+        assert rc == 0, err
+        assert (root / "plane0" / "snr.npy").exists()
+        assert not (cells / "snr.npy").exists()

@@ -40,6 +40,14 @@ Modes of operation (determined by arg1 and arg2):
      Example: rename * '\d{4}-\d{2}-\d{2}_' '' # exp-2024-04-29_Saline -> exp-Saline
      Note: escape \ and {} when wrapped inside a datalad runcmd -> '\\d{{4}}-\\d{{2}}-\\d{{2}}_'
 
+  8. Path mode: arg1 contains '/'
+     Transform the whole path instead of just the basename, so files can be
+     moved across directories (missing destination directories are created).
+     Combines with the replace/delete/regex modes above. A '/' in arg1 is the
+     trigger, since it can never occur within a single basename.
+     Example: rename 02_roi2cell/sub-A/exp-X/plane0/cells/snr.npy '02_roi2cell/(.*)/cells/snr.npy' '01_suite2p/\1/snr.npy'
+              # -> 01_suite2p/sub-A/exp-X/plane0/snr.npy
+
   INPUTS   One or more file/directory paths or glob patterns
   arg1     Pattern/string to match (see modes above)
   arg2     Replacement/transformation (see modes above)
@@ -63,7 +71,14 @@ def is_regex_pattern(pattern):
     return any(char in regex_special for char in pattern)
 
 def rename(input, arg1, arg2):
-    parent_path, old_item = os.path.split(input)
+    # Path mode: a '/' in arg1 can never match within a basename (filenames
+    # contain no '/'), so it signals that the transformation should apply to
+    # the whole path. This enables moving files across directories — e.g.
+    # '02_roi2cell/(.*)/cells/snr.npy' -> '01_suite2p/\1/snr.npy'.
+    if '/' in arg1:
+        parent_path, old_item = '', input
+    else:
+        parent_path, old_item = os.path.split(input)
     if arg1 == '*':
         # 6. Full replace: substitute the entire name with arg2
         new_item = arg2
@@ -110,6 +125,11 @@ def rename(input, arg1, arg2):
         if os.path.exists(new_path):
             print(f"SKIP: '{new_item}' already exists. Will try to rename '{old_item}' in the next iteration.")
             return input
+        # in path mode the destination may live in a directory that does not
+        # exist yet (cross-tree move); create it before renaming
+        dest_dir = os.path.dirname(new_path)
+        if dest_dir:
+            os.makedirs(dest_dir, exist_ok=True)
         os.rename(old_path, new_path)
         print(f"Rename {old_item} -> {new_item}")
     return
