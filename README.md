@@ -1,17 +1,17 @@
-# rename-tool
+# renom
 
 Batch rename files and directories with pattern-based transformations.
 
 ## Install
 
 ```bash
-uv tool install -e ~/repos/rename-tool
+uv tool install -e ~/repos/renom
 ```
 
 ## Usage
 
 ```
-rename INPUTS... arg1 arg2
+renom INPUTS... arg1 arg2
 ```
 
 The mode of operation is determined automatically from `arg1` and `arg2`:
@@ -63,25 +63,25 @@ can `git revert`. Preview first with `datalad run --dry-run command`.
 datalad run \
     -m "Add sub- prefix to all subject directories" \
     -i "2*" \
-    "rename {inputs} 'sub-' ''"
+    "renom {inputs} 'sub-' ''"
 
 # Reindex trial numbers across all sessions for a subject
 datalad run \
     -m "Offset trial numbers by +37 for sub-240227P LSD post" \
     -i "sub-240227P/exp-LSD/ses-post/**/*.mp4" \
-    "rename {inputs} '_T' '+37'"
+    "renom {inputs} '_T' '+37'"
 
 # Strip date prefixes from experiment directories
 datalad run \
     -m "Strip date prefix from experiment dirs" \
     -i "sub-*/exp-20*" \
-    "rename {inputs} '\\d{{4}}-\\d{{2}}-\\d{{2}}_' ''"
+    "renom {inputs} '\\d{{4}}-\\d{{2}}-\\d{{2}}_' ''"
 
 # Backfill snr.npy across pipeline stages (path mode), preserving sub/exp/plane
 datalad run \
     -m "Backfill snr.npy from 02_roi2cell -> 01_suite2p" \
     -i "02_roi2cell/*/*/*/cells/snr.npy" \
-    "rename {inputs} '02_roi2cell/(.*)/cells/snr.npy' '01_suite2p/\1/snr.npy'"
+    "renom {inputs} '02_roi2cell/(.*)/cells/snr.npy' '01_suite2p/\1/snr.npy'"
 ```
 
 DataLad expands the `-i` globs and passes matched paths as `{inputs}`.

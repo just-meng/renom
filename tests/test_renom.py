@@ -1,4 +1,4 @@
-"""Tests for rename-tool."""
+"""Tests for renom."""
 import os
 import subprocess
 import sys
@@ -7,8 +7,8 @@ from pathlib import Path
 
 
 def run_rename(args):
-    """Run rename as a console script."""
-    cmd = [sys.executable, "-m", "rename_tool"] + args
+    """Run renom as a console script."""
+    cmd = [sys.executable, "-m", "renom"] + args
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0 and result.stderr:
         print(f"stderr: {result.stderr}")

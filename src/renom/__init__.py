@@ -3,7 +3,7 @@ r"""
 Batch rename files and directories with pattern-based transformations.
 
 Synopsis:
-  rename [OPTIONS] INPUTS... arg1 arg2
+  renom [OPTIONS] INPUTS... arg1 arg2
 
 Description:
   Rename multiple files/directories matching INPUTS patterns by applying
@@ -13,31 +13,31 @@ Description:
 Modes of operation (determined by arg1 and arg2):
   1. Replace: Both arg1 and arg2 non-empty
      Replace all occurrences of arg1 with arg2 in each name
-     Example: rename * 'old' 'new'  # file_old.txt -> file_new.txt
+     Example: renom * 'old' 'new'  # file_old.txt -> file_new.txt
 
   2. Suffix: arg1 is empty string ''
      Append arg2 to the end of each name
-     Example: rename *.txt '' '.exclude'  # file.txt -> file.txt.exclude
+     Example: renom *.txt '' '.exclude'  # file.txt -> file.txt.exclude
 
   3. Prefix: arg2 is empty string '', arg1 NOT found in name
      Prepend arg1 to the beginning of each name
-     Example: rename * 'sub-' ''  # 260129A -> sub-260129A
+     Example: renom * 'sub-' ''  # 260129A -> sub-260129A
      
   4. Delete: arg2 is empty string '', arg1 found in name
      Remove all occurrences of arg1 from each name
-     Example: rename *Sim-Cre '_Sim-Cre' ''  # sub-260129A_Sim_Cre -> sub-260129A
+     Example: renom *Sim-Cre '_Sim-Cre' ''  # sub-260129A_Sim_Cre -> sub-260129A
 
   5. Number increment: arg1 in name, arg2 starts with '+N' (N is integer, or '+-N')
      Find numbers following arg1 and add N to them
-     Example: rename *_T*.tif '_T' '+5'  # file_T1.tif -> file_T6.tif
+     Example: renom *_T*.tif '_T' '+5'  # file_T1.tif -> file_T6.tif
 
   6. Full replace: arg1 is '*'
      Replace the entire name with arg2 (arg1 acts as a wildcard meaning "any name")
-     Example: rename */*/ses-pre_* '*' 'ses-pre'  # ses-pre_LSD-0.4 -> ses-pre
+     Example: renom */*/ses-pre_* '*' 'ses-pre'  # ses-pre_LSD-0.4 -> ses-pre
 
   7. Regex-matching: arg1 is regex
      Replace the part of name that matches the regex pattern specified by arg1 with arg2
-     Example: rename * '\d{4}-\d{2}-\d{2}_' '' # exp-2024-04-29_Saline -> exp-Saline
+     Example: renom * '\d{4}-\d{2}-\d{2}_' '' # exp-2024-04-29_Saline -> exp-Saline
      Note: escape \ and {} when wrapped inside a datalad runcmd -> '\\d{{4}}-\\d{{2}}-\\d{{2}}_'
 
   8. Path mode: arg1 contains '/'
@@ -45,7 +45,7 @@ Modes of operation (determined by arg1 and arg2):
      moved across directories (missing destination directories are created).
      Combines with the replace/delete/regex modes above. A '/' in arg1 is the
      trigger, since it can never occur within a single basename.
-     Example: rename 02_roi2cell/sub-A/exp-X/plane0/cells/snr.npy '02_roi2cell/(.*)/cells/snr.npy' '01_suite2p/\1/snr.npy'
+     Example: renom 02_roi2cell/sub-A/exp-X/plane0/cells/snr.npy '02_roi2cell/(.*)/cells/snr.npy' '01_suite2p/\1/snr.npy'
               # -> 01_suite2p/sub-A/exp-X/plane0/snr.npy
 
   INPUTS   One or more file/directory paths or glob patterns
