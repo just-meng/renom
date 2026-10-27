@@ -7,6 +7,8 @@ dependencies = []
 
 [project.scripts]
 renom = "renom:main"
+# Legacy alias: keeps `datalad rerun` of old run records (`rename {inputs} ...`) working.
+rename = "renom:main"
 
 [build-system]
 requires = ["hatchling"]

@@ -8,6 +8,10 @@ Batch rename files and directories with pattern-based transformations.
 uv tool install -e ~/repos/renom
 ```
 
+This also installs a legacy `rename` alias (the tool's former name) so that
+`datalad rerun` of older run records keeps working. Note that it shadows the
+native Linux `rename` while the tool is on your `PATH`.
+
 ## Usage
 
 ```
